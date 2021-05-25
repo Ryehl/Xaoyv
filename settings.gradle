@@ -1,3 +1,0 @@
-include ':app', ':mylibrary', ':smart-swipe', ':ucrop', ':smart-swipe-support', ':picture_library'
-rootProject.name='Xaoyv'
-include ':qqcache'
