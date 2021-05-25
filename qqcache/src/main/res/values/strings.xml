@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">闪照破解</string>
+
+    <string name="start">开始扫描</string>
+    <string name="history">历史记录</string>
+    <string name="description">1.点开QQ的闪照，等提示“按住屏幕可查看5秒”的时候，按home键或向上划到主屏幕\n2.打开本软件，开始扫描\n3.扫描结束（如果有好多闪照，重复上述操作）\n</string>
+    <string name="check_self">正在检查自身权限</string>
+    <string name="syjc">使用教程：</string>
+</resources>

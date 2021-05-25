@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="30dp"
+    tools:context=".activity.QrcodeActivity">
+
+    <Button
+        android:id="@+id/main_btn_scan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="点击进行扫描" />
+
+    <EditText
+        android:id="@+id/main_et_show"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:hint="扫描到的内容会在这儿进行显示" />
+
+    <Button
+        android:id="@+id/main_btn_toImg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:text="点击将文字生成二维码" />
+
+    <ImageView
+        android:id="@+id/main_img_show"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
