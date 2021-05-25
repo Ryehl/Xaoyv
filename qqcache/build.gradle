@@ -25,6 +25,14 @@ android {
         targetCompatibility = 1.8
     }
 
+    signingConfigs {
+        Config {
+            keyAlias 'qqcache'
+            keyPassword '123456'
+            storeFile file('./keystore/QQCache.jks')
+            storePassword '123456'
+        }
+    }
 }
 
 dependencies {

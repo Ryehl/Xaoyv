@@ -25,6 +25,15 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+
+    signingConfigs {
+        Config {
+            keyAlias 'xaoyv'
+            keyPassword '12345678'
+            storeFile file('./keystore/Xaoyv.jks')
+            storePassword '12345678'
+        }
+    }
 }
 
 dependencies {
