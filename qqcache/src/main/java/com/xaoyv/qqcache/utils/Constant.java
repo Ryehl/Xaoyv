@@ -13,6 +13,8 @@ public class Constant {
     public static final int REQUESTCODE = 0;
     public static final String URL = "qc/uploadimg";
     static final String BASE_URL = "http://8.140.155.202:8082/";
+    public static final String KV_NEED_DEL = "need_del";
+    public static final String KV_DEL_AUTHOR = "del_author";
 //    static final String BASE_URL = "http://192.168.1.51:8080/";
     public static String[] ALL_PERMISSIONS = new String[]{
             Manifest.permission.INTERNET,

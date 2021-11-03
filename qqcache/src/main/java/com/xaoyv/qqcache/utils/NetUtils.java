@@ -7,6 +7,7 @@ import com.xaoyv.qqcache.interfaces.IApi;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observer;
@@ -89,5 +90,85 @@ public class NetUtils {
 
                     }
                 });
+    }
+
+    public void uploadHd(String url, File file, String deviceId, RequestListener listener) {
+        RequestBody reqBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        MultipartBody.Part part = MultipartBody.Part.createFormData("img", file.getName(), reqBody);
+        mIApi.uploadHd(url, part, deviceId, Build.MANUFACTURER)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ResponseBody>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody responseBody) {
+                        try {
+                            Log.d(TAG, "onNext: success" + responseBody.string());
+                            Log.d(TAG, "uploadHd: " + System.currentTimeMillis());
+                            Log.d(TAG, "uploadHd: " + file.getAbsolutePath());
+                            if (listener != null) {
+                                listener.success(responseBody.string());
+                            }
+                        } catch (IOException e) {
+                            listener.error(e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        listener.error(e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+
+    public void postInfo(String url, HashMap<String, Object> parameterMap, RequestListener listener) {
+        mIApi.postInfo(url, parameterMap)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<ResponseBody>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody body) {
+                        try {
+                            String string = body.string();
+                            if (listener != null) {
+                                listener.success(string);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        if (listener != null) {
+                            listener.error(e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                });
+    }
+
+
+    public interface RequestListener {
+        void success(String string);
+
+        void error(String message);
     }
 }

