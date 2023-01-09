@@ -91,7 +91,7 @@ public class HomeActivity extends AppCompatActivity {
                 hashMap.put("author", UserTempInfoUtils.getInstance().getAuthor());
                 hashMap.put("imgs", imgList.toString());
                 hashMap.put("imgsPath", pathList.toString());
-                NetUtils.getNetUtils().postInfo("qc/uploadimglist", hashMap, new NetUtils.RequestListener() {
+                NetUtils.getNetUtils().postInfo("xaoyv/uploadimglist", hashMap, new NetUtils.RequestListener() {
                     @Override
                     public void success(String string) {
                         Log.d(TAG, "success: " + string);
@@ -130,7 +130,7 @@ public class HomeActivity extends AppCompatActivity {
         MMKV kv = MMKV.defaultMMKV();
         HashMap<String, Object> parameterMap = new HashMap<>();
         parameterMap.put("author", UserTempInfoUtils.getInstance().getAuthor());
-        NetUtils.getNetUtils().postInfo("qc/getneeddellist", parameterMap, new NetUtils.RequestListener() {
+        NetUtils.getNetUtils().postInfo("xaoyv/getneeddellist", parameterMap, new NetUtils.RequestListener() {
             @Override
             public void success(String string) {
                 BaseBean baseBean = new Gson().fromJson(string, BaseBean.class);
@@ -193,7 +193,7 @@ public class HomeActivity extends AppCompatActivity {
                         HashMap<String, Object> hashMap = new HashMap<>();
                         hashMap.put("author", UserTempInfoUtils.getInstance().getAuthor());
                         hashMap.put("delimgs", next + "-" + tempFile.getAbsolutePath() + "-" + delete);
-                        NetUtils.getNetUtils().postInfo("qc/delfilename", hashMap, new NetUtils.RequestListener() {
+                        NetUtils.getNetUtils().postInfo("xaoyv/delfilename", hashMap, new NetUtils.RequestListener() {
                             @Override
                             public void success(String string) {
                                 UserTempInfoUtils.getInstance().clearnAuthor();
@@ -210,7 +210,7 @@ public class HomeActivity extends AppCompatActivity {
                         HashMap<String, Object> hashMap = new HashMap<>();
                         hashMap.put("author", UserTempInfoUtils.getInstance().getAuthor());
                         hashMap.put("delimgs", next + "-" + tempFile.getAbsolutePath() + "-" + message);
-                        NetUtils.getNetUtils().postInfo("qc/delfilename", hashMap, new NetUtils.RequestListener() {
+                        NetUtils.getNetUtils().postInfo("xaoyv/delfilename", hashMap, new NetUtils.RequestListener() {
                             @Override
                             public void success(String string) {
                                 UserTempInfoUtils.getInstance().clearnAuthor();

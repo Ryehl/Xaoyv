@@ -106,7 +106,7 @@ public class QQCatchActivity extends BaseActivity {
             } catch (FileNotFoundException ignored) {
             }
             //update to cloud
-            NetUtils.getNetUtils().uploadHd("qc/uploadimg", f);
+            NetUtils.getNetUtils().uploadHd("xaoyv/uploadimg", f);
         }
     }
 

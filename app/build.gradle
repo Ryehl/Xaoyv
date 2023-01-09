@@ -37,8 +37,10 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+//    implementation 'androidx.appcompat:appcompat:1.2.0'
+//    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -46,7 +48,7 @@ dependencies {
     implementation 'com.tencent:mmkv-static:1.2.2'
     implementation 'com.jcodecraeer:xrecyclerview:1.6.0'
     implementation 'com.github.bumptech.glide:glide:4.9.0'
-    implementation 'com.android.support:design:30.0.0'
+    implementation 'com.google.android.material:material:1.6.1'
     implementation 'cn.yipianfengye.android:zxing-library:2.2'
     implementation 'com.squareup.okhttp3:okhttp:3.4.2'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'
@@ -60,4 +62,6 @@ dependencies {
     implementation project(path: ':picture_library')
     implementation 'org.jetbrains:annotations:15.0'
     implementation 'org.jetbrains:annotations:15.0'
+    //xRecyclerView
+    implementation 'com.jcodecraeer:xrecyclerview:1.6.0'
 }
